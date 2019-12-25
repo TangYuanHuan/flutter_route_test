@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_route_test/routes_config.dart';
 import 'package:flutter_route_test/third_test_page.dart';
 class SecondTestPage extends StatefulWidget {
 
@@ -48,6 +49,12 @@ class _SecondTestState extends State<SecondTestPage> {
             child: Text("replace"),
             onPressed: (){
               //还没研究出来怎么用
+            },
+          ),
+          RaisedButton(
+            child: Text("popAndPushNamed"),
+            onPressed: (){
+              Navigator.popAndPushNamed(context, commonPage);
             },
           ),
         ],

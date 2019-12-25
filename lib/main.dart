@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_route_test/common_page.dart';
 import 'package:flutter_route_test/entity/blog_model.dart';
 import 'package:flutter_route_test/publish_blog_page.dart';
+import 'package:flutter_route_test/routes_config.dart';
 import 'package:flutter_route_test/second_test_page.dart';
+
+import 'not_found_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,12 +14,40 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: "路由管理"),
+
+      //路由映射
+      routes: myRoutes,
+
+      //指定哪个命名路由指向的页面作为首面，这个值生效时上面的home不生效
+      initialRoute: "/",
+
+      //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，此方法生效
+      onGenerateRoute: (RouteSettings settings) {
+        print('onGenerateRoute:$settings');
+        if(onGenerateRouteName != settings.name) {
+          return null;
+        }
+        return MaterialPageRoute(builder: (BuildContext context) {
+          return NoFoundPage(settings.name);
+        });
+      },
+
+      //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，
+      // 并且没有实现onGenerateRoute方法，或者onGenerateRoute方法返回null，此方法生效
+      //如果这一个方法也是返回null，则控制台会输出错误信息
+      onUnknownRoute: (RouteSettings settings){
+        print('onUnknownRoute:$settings');
+        return MaterialPageRoute(builder: (BuildContext context) {
+          return NoFoundPage(settings.name);
+        });
+      },
     );
   }
 }
@@ -42,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         actions: <Widget>[
           _buildSettingButton(context),
+          _buildMoreButton(context),
         ],
       ),
       body: (blogLists == null || blogLists.isEmpty)
@@ -89,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 Widget _buildSettingButton(BuildContext context) {
-  return  GestureDetector(
+  return GestureDetector(
     child: Padding(
         padding: EdgeInsets.only(right: 10),
         child: Icon(
@@ -101,17 +134,46 @@ Widget _buildSettingButton(BuildContext context) {
   );
 }
 
+Widget _buildMoreButton(BuildContext context) {
+  return PopupMenuButton<String>(onSelected: (String routeName) {
+    print('routeName:$routeName');
+    Navigator.pushNamed(context, routeName);
+  }, itemBuilder: (context) {
+    var list = myRouteNames.map((String e) {
+      return PopupMenuItem(
+        value: e,
+        child: Text(e),
+      );
+    }).toList();
+    list.add(PopupMenuItem(
+      value: onGenerateRouteName,
+      child: Text("onGenerateRouteName"),
+    ));
+
+    list.add(PopupMenuItem(
+      value: onUnknownRouteName,
+      child: Text("onUnknownRouteName"),
+    ));
+
+    return list;
+  });
+}
+
 void _navigatorToSetting(BuildContext context) async {
-  var result = await Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) {
-    return SecondTestPage();
-  },settings: RouteSettings(name:"main",arguments: {"keepAlive":true})));
+  var result = await Navigator.push(
+      context,
+      CupertinoPageRoute(
+          builder: (BuildContext context) {
+            return SecondTestPage();
+          },
+          settings:
+              RouteSettings(name: "second", arguments: {"keepAlive": true})));
   print('_navigatorToSetting result:$result');
 }
 
 void _publishBlog(BuildContext context) async {
   //MaterialPageRoute 安卓风格 从下往上淡入 退出时相反
   Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-//    return SecondTestPage();
     return PublishBlogPage(); //为什么跳转后，会立马打印main build
   }));
 
