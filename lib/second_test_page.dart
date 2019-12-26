@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_route_test/routes_config.dart';
 import 'package:flutter_route_test/third_test_page.dart';
+import 'package:provider/provider.dart';
+
+import 'observer/navigator_manager.dart';
 class SecondTestPage extends StatefulWidget {
 
   SecondTestPage();
@@ -26,10 +29,11 @@ class _SecondTestState extends State<SecondTestPage> {
           SizedBox(width: 10),
           RaisedButton(
             child: Text("跳转到第三个页面"),
-            onPressed: (){
-              Navigator.push(context,MaterialPageRoute(builder: (BuildContext context){
+            onPressed: () async {
+              var reslut = await Navigator.push(context,MaterialPageRoute(builder: (BuildContext context){
                 return ThirdTestPage();
               }));
+              print('第三个页面的返回值:$reslut');
             },
           ),
           SizedBox(width: 10),
@@ -46,15 +50,17 @@ class _SecondTestState extends State<SecondTestPage> {
             },
           ),
           RaisedButton(
-            child: Text("replace"),
-            onPressed: (){
-              //还没研究出来怎么用
-            },
-          ),
-          RaisedButton(
             child: Text("popAndPushNamed"),
             onPressed: (){
               Navigator.popAndPushNamed(context, commonPage);
+            },
+          ),
+          RaisedButton(
+            child: Text("removeRoute"),
+            onPressed: () {
+              //执行后会抛出控制台异步
+              var navigatorManager = Provider.of<NavigatorManager>(context);
+              Navigator.removeRoute(context, navigatorManager.getLast());
             },
           ),
         ],

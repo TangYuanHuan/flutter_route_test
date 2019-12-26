@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_route_test/common_page.dart';
-import 'package:flutter_route_test/entity/blog_model.dart';
-import 'package:flutter_route_test/publish_blog_page.dart';
-import 'package:flutter_route_test/routes_config.dart';
-import 'package:flutter_route_test/second_test_page.dart';
+import 'package:provider/provider.dart';
 
+import 'entity/blog_model.dart';
 import 'not_found_page.dart';
+import 'observer/navigator_manager.dart';
+import 'publish_blog_page.dart';
+import 'routes_config.dart';
+import 'second_test_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,40 +15,49 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NavigatorManager()),
+      ],
+      child: Consumer<NavigatorManager>(
+        builder: (context, navigatorManager, _) {
+          return MaterialApp(
+            navigatorObservers: [navigatorManager],
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: MyHomePage(title: "路由管理"),
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+            //路由映射
+            routes: myRoutes,
+
+            //指定哪个命名路由指向的页面作为首面，这个值生效时上面的home不生效
+            initialRoute: "/",
+
+            //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，此方法生效
+            onGenerateRoute: (RouteSettings settings) {
+              print('onGenerateRoute:$settings');
+              if (onGenerateRouteName != settings.name) {
+                return null;
+              }
+              return MaterialPageRoute(builder: (BuildContext context) {
+                return NoFoundPage(settings.name);
+              });
+            },
+
+            //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，
+            // 并且没有实现onGenerateRoute方法，或者onGenerateRoute方法返回null，此方法生效
+            //如果这一个方法也是返回null，则控制台会输出错误信息
+            onUnknownRoute: (RouteSettings settings) {
+              print('onUnknownRoute:$settings');
+              return MaterialPageRoute(builder: (BuildContext context) {
+                return NoFoundPage(settings.name);
+              });
+            },
+          );
+        },
       ),
-      home: MyHomePage(title: "路由管理"),
-
-      //路由映射
-      routes: myRoutes,
-
-      //指定哪个命名路由指向的页面作为首面，这个值生效时上面的home不生效
-      initialRoute: "/",
-
-      //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，此方法生效
-      onGenerateRoute: (RouteSettings settings) {
-        print('onGenerateRoute:$settings');
-        if(onGenerateRouteName != settings.name) {
-          return null;
-        }
-        return MaterialPageRoute(builder: (BuildContext context) {
-          return NoFoundPage(settings.name);
-        });
-      },
-
-      //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，
-      // 并且没有实现onGenerateRoute方法，或者onGenerateRoute方法返回null，此方法生效
-      //如果这一个方法也是返回null，则控制台会输出错误信息
-      onUnknownRoute: (RouteSettings settings){
-        print('onUnknownRoute:$settings');
-        return MaterialPageRoute(builder: (BuildContext context) {
-          return NoFoundPage(settings.name);
-        });
-      },
     );
   }
 }

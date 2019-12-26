@@ -2,6 +2,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_route_test/fourth_test_page.dart';
+import 'package:flutter_route_test/routes_config.dart';
+import 'package:provider/provider.dart';
+
+import 'observer/navigator_manager.dart';
 
 class ThirdTestPage extends StatefulWidget {
 
@@ -35,6 +39,14 @@ class _ThirdTestState extends State<ThirdTestPage> {
               Navigator.push(context, MaterialPageRoute(builder:(BuildContext context){
                 return FourthTestPage();
               }));
+            },
+          ),
+          RaisedButton(
+            child: Text("removeRoute remove最后一个Route，删除当前页面"),
+            onPressed: () {
+              //执行后会抛出控制台异步
+              var navigatorManager = Provider.of<NavigatorManager>(context);
+              Navigator.removeRoute(context, navigatorManager.getLast());
             },
           ),
         ],
