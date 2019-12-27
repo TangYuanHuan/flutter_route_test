@@ -22,10 +22,23 @@ class _FourthTestState extends State<FourthTestPage> {
       body: Column(
         children: <Widget>[
           RaisedButton(
+            child: Text("继续跳转到第四个页面"),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder:(BuildContext context){
+                return FourthTestPage();
+              }));
+            },
+          ),
+          RaisedButton(
             child: Text("NavigatorState"),
             onPressed: () {
               var navigatorState = Navigator.of(context);
               print('navigatorState.canPop:${navigatorState.canPop()}');
+              var routes = Provider.of<NavigatorManager>(context).getRoutes();
+              for(var r in routes) {
+                print('${r.settings.name}\t${r.hashCode}');
+              }
+              print('${Provider.of<NavigatorManager>(context).getRoutes()}');
             },
           ),
           RaisedButton(
