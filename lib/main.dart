@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
             routes: myRoutes,
 
             //指定哪个命名路由指向的页面作为首面，这个值生效时上面的home不生效
-            initialRoute: "/",
+//            initialRoute: secondPage,
 
             //在使用命名路由跳转时，如果路由名称没有注册，找不到要跳转到哪里，此方法生效
             onGenerateRoute: (RouteSettings settings) {
